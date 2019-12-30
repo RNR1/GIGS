@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+<!-- Page Title -->
+{% block title %} Log In {% endblock %}
+
+<!-- Main -->
+{% block main %}
+<h3>Login</h3>
+<br>
+<form action="/login" method="POST" class="needs-validation" novalidate>
+    <!-- Login Information -->
+    <div class="form-row">
+        <!-- Email -->
+        <div class="col-md-4 mb-3">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Email" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <!-- Password -->
+        <div class="col-md-4 mb-3">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" autocomplete="true" placeholder="Password" required>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Login</button>
+    <br><br>
+    <p>Don't have an account yet? <a href="register">Create one here!</a></p>
+    {% endblock %}

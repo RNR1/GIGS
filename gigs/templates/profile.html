@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+<!-- Page Title -->
+{% block title %} {{ display }} {% endblock %}
+
+<!-- Main -->
+{% block main %}
+
+<!-- USER -->
+<div class="media">
+    <img src="/static/avatar.svg" class="mr-3" width="150" height="150" alt="Profile Picture">
+    <div class="media-body">
+        <h5 class="mt-0">{{ display }}</h5>
+        <h6 class="mt-0">{{ name }}</h6>
+        <h6 class="mt-0">{{ location }}</h6>
+    </div>
+</div>
+
+<div class="media">
+    <div class="media-body">
+      <h3 class="badge badge-secondary">Biography <i class="far fa-edit" onclick="update()"></i></h3>
+      
+      {% if bio %}
+      <p id="bio">{{ bio }}</p>
+      {% else %}
+      <p id="bio">&Tab; Bio goes here, whenever you're ready</p>
+      {% endif %}
+    </div>
+</div>
+<br>
+
+<!-- SCHEDULE -->
+<h3>Upcoming Gigs:</h3>
+<br>
+{% if gigs %}
+<ul class="list-unstyled">
+    {% for gig in gigs %}
+    <li class="media">
+        <time datetime={{gig[2]}} class="icon">
+            <em class=day>Day</em>
+            <strong class=month>Month</strong>
+            <span class=day-num>#</span>
+        </time>
+        <div class="media-body">
+            {% if gig[4] %}
+            <h5 class="mt-0 mb-1">{{ gig[4] }}</h5>
+            <h6 class="mt-0">{{ gig[3] }}</h6>
+            {% else %}
+            <h5 class="mt-0 mb-1">{{ gig[3] }}</h5>
+            {% endif %}
+            {% if gig[6] %}
+            <h6 class="mt-0">{{ gig[5] }}, {{ gig[6]}}, {{ gig[7] }}</h6>
+            {% else %}
+            <h6 class="mt-0">{{ gig[5] }}, {{ gig[7] }}</h6>
+            {% endif %}
+            <h6 class="mt-0">{{ gig[8] }}</h6>
+            <form action="/remove/{{gig[0]}}" method="POST">
+                <button type="submit" class="btn btn-outline-danger">Remove</button>
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+{% else %}
+    <h4>you have not added any gigs yet</h4>
+{% endif %}
+</ul>
+
+<script src="static/moment.min.js"></script>
+<script src="static/dateFormat.js"></script>
+<script src="static/bio.js"></script>
+
+{% endblock %}

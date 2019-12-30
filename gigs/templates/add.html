@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+<!-- Page Title -->
+{% block title %} Add Gig {% endblock %}
+
+<!-- Main -->
+{% block main %}
+
+<h3>New Gig</h3>
+<br>
+<!-- Add Gig Form-->
+<form action="/add" method="POST" class="needs-validation" novalidate>
+    <div class="form-row">
+        <!-- Date -->
+        <div class="col-md-3">
+            <label for="date">Date</label>
+            <input type="date" name="date" autocomplete="off" autofocus class="form-control is valid" required>
+            <div class="invalid-feedback">you must specify date</div>
+        </div>
+        <!-- Time -->
+        <div class="col-md-1.5">
+            <label for="time">Time</label>
+            <input type="time" name="time" autocomplete="off" autofocus class="form-control is valid" required>
+            <div class="invalid-feedback">you must specify date</div>
+        </div>
+        <!-- Venue -->
+        <div class="form-group col-md-3">
+            <label for="venue">Venue</label>
+            <input type="text" name="venue" class="form-control" required>
+            <div class="invalid-feedback">you must specify venue name</div>
+        </div>
+
+        <!-- Event Name -->
+        <div class="form-group col-md-3 mb-2">
+            <label for="event">Event Name <span class="small"><span class="red">*</span>optional</span></label>
+            <input type="text" name="event" class="form-control">
+        </div>
+    </div>
+    <!-- City -->
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label for="city">City</label>
+            <input type="text" name="city" class="form-control" required>
+            <div class="invalid-feedback">you must specify city</div>
+        </div>
+        <!-- State -->
+        <div class="form-group col-md-3">
+            <label for="state">State <span class="small"><span class="red">*</span>USA only</span></label>
+            <select name="state" class="form-control">
+            <option value="" selected>N/A</option>
+            {% for state in states %}
+            <option value="{{state}}">{{state}}</option>
+            {% endfor %}
+        </select>
+        </div>
+        <!-- Country -->
+        <div class="form-group col-md-3">
+            <label for="country">Country</label>
+            <select name="country" class="form-control" required>
+            <option value="" selected disabled>Choose</option>
+            {% for country in countries %}
+            <option value="{{country}}">{{country}}</option>
+            {% endfor %}
+            </select>
+            <div class="invalid-feedback">you must specify a country</div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Submit</button>
+</form>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}
