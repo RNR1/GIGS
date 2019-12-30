@@ -143,7 +143,8 @@ def create_app(config_file='settings.py'):
             elif not confirmation or confirmation != password:
                 return apology("Password's confirmation does not match")
 
-
+            # Hash the user’s password with generate_password_hash
+            hash = password
             user = User(form("email"), form('display-name'), form('first-name'), form('last-name'), form('city'), form('state'), form('country'), form('bio'))
 
             # add to db
