@@ -1,12 +1,11 @@
+import os
+import psycopg2
 from flask import Flask, request, render_template, redirect, session, g
-from .helpers import apology, login_required, create_connection, format_datetime, get_countries, get_states
+from .helpers import apology, login_required, format_datetime, get_countries, get_states
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-import sqlite3
-import os
-import psycopg2
 from .user import User
 from .gig import Gig
 
@@ -17,25 +16,6 @@ def create_app(config_file='settings.py'):
 
     conn = psycopg2.connect(os.environ.get('DATABASE_URL'), sslmode='require')
     db = conn.cursor()
-
-
-    # Ensure responses aren't cached
-    # @app.after_request
-    # def after_request(response):
-    #     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    #     response.headers["Expires"] = 0
-    #     response.headers["Pragma"] = "no-cache"
-    #     return response
-
-    # # Register the template filter with the Jinja Environment
-    # app.jinja_env.filters['formatdatetime'] = format_datetime
-
-
-    # # Configure session to use filesystem (instead of signed cookies)
-    # app.config["SESSION_FILE_DIR"] = mkdtemp()
-    # app.config["SESSION_PERMANENT"] = False
-    # app.config["SESSION_TYPE"] = "filesystem"
-    # Session(app)
 
     # TEMPLATES
     ## index
@@ -49,7 +29,7 @@ def create_app(config_file='settings.py'):
     @login_required
     def account():
         """acount settings"""
-        db.execute("SELECT * FROM users WHERE id = %s", (session["user_id"]))
+        db.execute("SELECT * FROM users WHERE id = '{}'".format(session["user_id"]))
         row = db.fetchone()
 
         return render_template('account.html', message=False, display=row[3])
@@ -74,15 +54,16 @@ def create_app(config_file='settings.py'):
         
             gig = Gig(session["user_id"], form('date'), form('time'), form('venue'), form('event'), form('city'), form('state'), form('country'))
         
-        # add to db
+            # add to db
             try:
-                db.execute("INSERT INTO gigs(user, date, venue, event, city, state, country, time) VALUES (:user, :date, :venue, :event, :city, :state, :country, :time)", 
-                {'user': gig.user, 'date': gig.date, 'venue': gig.venue, 'event': gig.event, 'city': gig.location['city'], 'state': gig.location['state'], 'country': gig.location['country'], 'time': gig.time})
-            except: 
+                db.execute("""INSERT INTO gigs(user_id, date, venue, event, city, state, country, time) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')""".format(gig.user_id, gig.date, gig.venue, gig.event, gig.location['city'], gig.location['state'], gig.location['country'], gig.time))
+            except Exception as error:
+                print(error) 
                 return apology("Invalid request")
             finally:
                 conn.commit()
-                return redirect('/profile')
+                
+            return redirect('/profile')
         
         else:        
             return render_template('add.html', countries=get_countries(), states=get_states())
@@ -106,11 +87,10 @@ def create_app(config_file='settings.py'):
                 return apology("must provide password", 403)
 
             # Query database for username
-            db.execute("SELECT * FROM users WHERE email = :email",
-                              {'email': request.form.get("email")})
+            db.execute("SELECT * FROM users WHERE email = '{}'".format(request.form.get("email")))
             rows = db.fetchall()
-        
             if len(rows) != 1 or not check_password_hash(rows[0][2], request.form.get("password")):
+                print(rows)
                 return apology("invalid username and/or password", 403)           
 
             # Remember which user has logged in
@@ -143,13 +123,13 @@ def create_app(config_file='settings.py'):
                 return apology("Password's confirmation does not match")
 
             # Hash the user’s password with generate_password_hash
-            hash = password
+            hash = generate_password_hash(password)
             user = User(form("email"), form('display-name'), form('first-name'), form('last-name'), form('city'), form('state'), form('country'), form('bio'))
 
             # add to db
             try:
-                db.execute("""INSERT INTO users(email, hash, display, first, last, city, state, country, bio) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                (user.email, hash, user.display, user.first, user.last, user.location['city'], user.location['state'], user.location['country'], user.bio))
+                db.execute("""INSERT INTO users(email, hash, display, first, last, city, state, country, bio) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
+                .format(user.email, hash, user.display, user.first, user.last, user.location['city'], user.location['state'], user.location['country'], user.bio))
             except Exception as e:
                 print(e) 
                 return apology("user already exists")
@@ -157,7 +137,7 @@ def create_app(config_file='settings.py'):
                 conn.commit()
 
             # Query database for username
-            db.execute("SELECT * FROM users WHERE email = %s", (user.email))        
+            db.execute("SELECT * FROM users WHERE email = '{}'".format(user.email))        
 
             row = db.fetchone() 
 
@@ -185,11 +165,11 @@ def create_app(config_file='settings.py'):
         """personal profile""" 
 
         # Get user profile info
-        db.execute("SELECT * FROM users WHERE id = :id", {'id': session["user_id"]})
+        db.execute("SELECT * FROM users WHERE id = '{}'".format(session["user_id"]))
         row = db.fetchone()
     
         #Get user gigs
-        db.execute("SELECT * FROM gigs WHERE user = :user ORDER BY date ASC", {'user': session["user_id"]})
+        db.execute("SELECT * FROM gigs WHERE user_id = '{}' ORDER BY date ASC".format(session["user_id"]))
         gigs = db.fetchall()
 
 
@@ -209,7 +189,7 @@ def create_app(config_file='settings.py'):
     def remove(id):
         """remove gig from profile"""
         try:
-            db.execute("DELETE FROM gigs WHERE id = :id", {'id': id})
+            db.execute("DELETE FROM gigs WHERE id = '{}'".format(id))
         except: 
             return apology("can't delete")
         finally:
@@ -221,7 +201,7 @@ def create_app(config_file='settings.py'):
     def delete_account():
         print('remove')
         try:
-            db.execute("DELETE FROM users WHERE id = :id", {'id': session["user_id"]})
+            db.execute("DELETE FROM users WHERE id = '{}'".format(session["user_id"]))
         except: 
             return apology("can't delete")
         finally:
@@ -237,12 +217,12 @@ def create_app(config_file='settings.py'):
         if password:
             hash = generate_password_hash(password)
             try:
-                db.execute("UPDATE users SET hash = :hash WHERE id = :id", {'hash': hash, 'id': session["user_id"]})
+                db.execute("UPDATE users SET hash = '{}' WHERE id = '{}'".format(hash, session["user_id"]))
             except: 
                 return apology("problem updating password")
         if email:
             try:
-                db.execute("UPDATE users SET email = :email WHERE id = :id", {'email': email, 'id': session["user_id"]})
+                db.execute("UPDATE users SET email = '{}' WHERE id = '{}'".format(email, session["user_id"]))
             except: 
                 return apology("problem updating email")
 
@@ -255,7 +235,7 @@ def create_app(config_file='settings.py'):
 
         if bio:
             try:
-                db.execute("UPDATE users SET bio = :bio WHERE id = :id", {'bio': bio, 'id': session["user_id"]})
+                db.execute("UPDATE users SET bio = '{}' WHERE id = '{}'".format(bio, session["user_id"]))
             except:
                 return apology("problem updating bio")
 

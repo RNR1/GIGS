@@ -1,8 +1,6 @@
 from flask import redirect, render_template, request, session
 import requests
 from functools import wraps
-import sqlite3
-from sqlite3 import Error
 import json
 
 
@@ -33,19 +31,6 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
-def create_connection(db_file):
-    """ create a database connection to a SQLite database """
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
-    except Error as e:
-        print(e)
-    finally:
-        if conn:
-            conn.close()
-
 def format_datetime(value, format="%d %b %Y"):
     """Format a date time to (Default): d Mon YYYY HH:MM P"""
     if value is None:
@@ -73,7 +58,7 @@ def get_countries():
         return None 
 
 def get_states():
-    with open("us_states.json", "r") as read_file:
+    with open("gigs/us_states.json", "r") as read_file:
         states = json.load(read_file)
         names = []
         for state in states:
