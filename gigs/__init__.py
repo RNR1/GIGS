@@ -15,7 +15,7 @@ def create_app(config_file='settings.py'):
 
     app.config.from_pyfile(config_file)
 
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = os.environ.get['DATABASE_URL']
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     db = conn.cursor()
 
@@ -50,7 +50,7 @@ def create_app(config_file='settings.py'):
     @login_required
     def account():
         """acount settings"""
-        db.execute("SELECT * FROM users WHERE id = :id", {'id': session["user_id"]})
+        db.execute("SELECT * FROM users WHERE id = %s", (session["user_id"]))
         row = db.fetchone()
 
         return render_template('account.html', message=False, display=row[3])
@@ -149,15 +149,15 @@ def create_app(config_file='settings.py'):
 
             # add to db
             try:
-                db.execute("INSERT INTO users(email, hash, display, first, last, city, state, country, bio) VALUES (:email, :hash, :display, :first, :last, :city, :state, :country, :bio)", 
-                {'email': user.email, 'hash': hash, 'display': user.display, 'first': user.first, 'last': user.last, 'city': user.location['city'], 'state': user.location['state'], 'country': user.location['country'], 'bio': user.bio})
+                db.execute("""INSERT INTO users(email, hash, display, first, last, city, state, country, bio) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                (user.email, hash, user.display, user.first, user.last, user.location['city'], user.location['state'], user.location['country'], user.bio))
             except: 
                 return apology("user already exists")
             finally:
                 conn.commit()
 
             # Query database for username
-            db.execute("SELECT * FROM users WHERE email = :email", {'email': user.email})        
+            db.execute("SELECT * FROM users WHERE email = %s", (user.email))        
 
             row = db.fetchone() 
 
