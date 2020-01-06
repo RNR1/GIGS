@@ -15,8 +15,7 @@ def create_app(config_file='settings.py'):
 
     app.config.from_pyfile(config_file)
 
-    DATABASE_URL = os.environ.get['DATABASE_URL']
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL'), sslmode='require')
     db = conn.cursor()
 
 
@@ -151,7 +150,8 @@ def create_app(config_file='settings.py'):
             try:
                 db.execute("""INSERT INTO users(email, hash, display, first, last, city, state, country, bio) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                 (user.email, hash, user.display, user.first, user.last, user.location['city'], user.location['state'], user.location['country'], user.bio))
-            except: 
+            except Exception as e:
+                print(e) 
                 return apology("user already exists")
             finally:
                 conn.commit()
