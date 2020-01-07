@@ -54,7 +54,7 @@ def profile():
     db.execute("SELECT * FROM users WHERE id = '{}'".format(session["user_id"]))
     row = db.fetchone()
     
-    db.execute("SELECT * FROM gigs WHERE user_id = '{}' ORDER BY date ASC".format(session["user_id"]))
+    db.execute("SELECT *, to_char(time, 'HH24:MI') as time FROM gigs WHERE user_id = '{}' ORDER BY date ASC".format(session["user_id"]))
     gigs = db.fetchall()
 
     display = row[3]
