@@ -31,34 +31,16 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def format_datetime(value, format="%d %b %Y"):
-    """Format a date time to (Default): d Mon YYYY HH:MM P"""
-    if value is None:
-        return ""
-    return value.strftime(format)
-
-
 def get_countries():
-    # contact API
-    try:
-        response = requests.get("https://restcountries.eu/rest/v2/all?fields=name")
-        response.raise_for_status()
-    except requests.RequestException:
-        return None
-
-    # Parse response
-    try:
-        countries = response.json()
+    with open("gigs/static/countries.json", "r") as read_file:
+        countries = json.load(read_file)
         names = []
         for country in countries:
             names.append(country["name"])
-
         return names
-    except (KeyError, TypeError, ValueError):
-        return None 
 
 def get_states():
-    with open("gigs/us_states.json", "r") as read_file:
+    with open("gigs/static/us_states.json", "r") as read_file:
         states = json.load(read_file)
         names = []
         for state in states:
