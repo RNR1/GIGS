@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
-
-<!-- Page Title -->
 {% block title %} Account {% endblock %}
 
-<!-- Main -->
 {% block main %}
 <div class="accordion" id="accordionExample">
         <div class="card">
@@ -20,7 +17,7 @@
               {% if message %}
               <p><strong>{{message}}</strong></p>
               {% endif %}
-              <form action="/change_login" method="post">
+              <form action="{{ url_for('auth.change_login') }}" method="POST">
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
                             <label for="email">Email</label>
@@ -48,7 +45,7 @@
           </div>
           <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
             <div class="card-body">
-                <form action="/delete_account" method="POST">
+                <form action="{{ url_for('main.delete_account') }}" method="POST">
                     <h6>This will delete your account, there's no undo for that!</h6>
                     <br>
                     <button type="submit" class="btn btn-danger">Delete</button>
