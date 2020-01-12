@@ -1,6 +1,9 @@
 {
     "python.pythonPath": "/usr/local/bin/python3",
     "cSpell.ignoreWords": [
-        "nums"
+        "memegen",
+        "nums",
+        "psycopg",
+        "werkzeug"
     ]
 }
